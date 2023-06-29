@@ -6,6 +6,7 @@
 ## Output:
 ## * start
 ## * target_word
+## TODO: Add feedback on user decisions
 
 defmodule TargetPicker do
   @spec generate_targets(word_list :: [String.t()]) ::
@@ -15,6 +16,7 @@ defmodule TargetPicker do
     # Consider using `MapSet`
     # Build paths (list of words)
     build_paths(word_list)
+    |> IO.inspect()
 
     # Select start and end nodes of a path
   end
@@ -22,23 +24,23 @@ defmodule TargetPicker do
   defp build_paths(word_list) do
     Enum.map(word_list, fn word ->
       build_paths_for_word(word, word_list, [word])
-      |> IO.inspect()
+      #|> IO.inspect()
     end)
   end
 
-  defp build_paths_for_word(nil, word_list, current_path) do
-    Enum.reverse(current_path)
-  end
 
   defp build_paths_for_word(word, word_list, current_path) do
-    new_word = Enum.find(word_list, fn new_word ->
+    new_words = Enum.filter(word_list, fn new_word ->
       difference_in_chars(new_word, word) == 1 && new_word not in current_path
     end)
 
-    IO.inspect(word, label: "word")
-    IO.inspect(new_word, label: "new_word")
-
-    build_paths_for_word(new_word, word_list, [new_word | current_path])
+    if Enum.empty?(new_words) do
+      Enum.reverse(current_path)
+    else
+      #IO.inspect(word, label: "word")
+      IO.inspect(new_words, label: "new_words")
+      Enum.map(new_words, fn new_word -> build_paths_for_word(new_word, word_list, [new_word | current_path])end)
+    end
   end
 
   defp difference_in_chars(word_1, word_2) do
