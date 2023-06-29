@@ -16,16 +16,28 @@ defmodule TargetPicker do
     # Consider using `MapSet`
     # Build paths (list of words)
     build_paths(word_list)
-    |> IO.inspect()
+    |> select_target()
 
     # Select start and end nodes of a path
+  end
+
+  defp select_target(paths) do
+    path = paths
+    |> Enum.filter(fn path -> length(path) > 1 end)
+    |> Enum.random()
+    if is_nil(path) do
+      nil
+    else
+      {Enum.at(path,0),Enum.at(path,-1)}
+    end
   end
 
   defp build_paths(word_list) do
     Enum.map(word_list, fn word ->
       build_paths_for_word(word, word_list, [word])
-      #|> IO.inspect()
     end)
+    |> List.flatten()
+    |> Enum.map(fn {path} -> path end)
   end
 
 
@@ -35,10 +47,11 @@ defmodule TargetPicker do
     end)
 
     if Enum.empty?(new_words) do
-      Enum.reverse(current_path)
+      {Enum.reverse(current_path)}
+
     else
       #IO.inspect(word, label: "word")
-      IO.inspect(new_words, label: "new_words")
+      #IO.inspect(new_words, label: "new_words")
       Enum.map(new_words, fn new_word -> build_paths_for_word(new_word, word_list, [new_word | current_path])end)
     end
   end
@@ -57,3 +70,4 @@ word_list = [
 ]
 
 TargetPicker.generate_targets(word_list)
+|> IO.inspect()
